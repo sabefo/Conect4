@@ -21,7 +21,6 @@ class Conect4
 			where_to_put("X")
 			@count += 1
 			if !finished?
-				sleep(0.7)
 				drop_chip!
 			else
 				winner
@@ -31,7 +30,6 @@ class Conect4
 			where_to_put("O")
 			@count += 1
 			if !finished?
-				sleep(0.7)
 				drop_chip!
 			else
 				winner
@@ -55,7 +53,12 @@ class Conect4
 	def where_to_put(elem)
 #		col = @forbidden.sample
 		puts "Donde quieres poner tu ficha"
-		input = gets.chomp.to_i - 1
+		input = gets.chomp
+		if input.to_s == "q"
+			puts "Adios!!"
+			return @flag = true
+		end
+		input = input.to_i - 1
 		if input < - 1 || input > 5
 			puts "Posicion incorrecta"
 			where_to_put(elem)
@@ -65,10 +68,15 @@ class Conect4
 			where_to_put(elem)
 		else
 			index = @string_board[input].index(" ")
-			@string_board[input][index] = elem
-			clear_screen!
-			move_to_home!
-			reputs(print_board)
+			5.downto(index) {  |i|
+				@string_board[input][i] = elem
+				sleep(0.1)
+				clear_screen!
+				@string_board[input][i + 1] = " "
+				move_to_home!
+				puts print_board
+			}
+			@string_board[input].pop
 		end
 	end
 
