@@ -8,23 +8,30 @@ class Conect4
 		@count = 0
 		@forbidden = [0,1,2,3,4,5]
 		@flag = false
+		puts "Jugador 1"
+		x = gets.chomp.capitalize
+		puts "Jugador 2"
+		y = gets.chomp.capitalize
+		@names = [x,y]
 	end
 
 	def drop_chip!
 		if @count % 2 == 0
-			puts "\nTurno de X"
+			puts "\nTurno de #{@names[0]}"
 			where_to_put("X")
 			@count += 1
 			if !finished?
+				sleep(0.7)
 				drop_chip!
 			else
 				winner
 			end
 		else
-			puts "\nTurno de O"
+			puts "\nTurno de #{@names[1]}"
 			where_to_put("O")
 			@count += 1
 			if !finished?
+				sleep(0.7)
 				drop_chip!
 			else
 				winner
@@ -46,14 +53,22 @@ class Conect4
 	end
 
 	def where_to_put(elem)
-		col = @forbidden.sample
-		if my_size(col) > 5
-			@forbidden.delete(col)
+#		col = @forbidden.sample
+		puts "Donde quieres poner tu ficha"
+		input = gets.chomp.to_i - 1
+		if input < - 1 || input > 5
+			puts "Posicion incorrecta"
+			where_to_put(elem)
+		elsif my_size(input) > 5#TENIA +col+
+#			@forbidden.delete(col)
+			puts "No se puede poner ahi"
 			where_to_put(elem)
 		else
-			index = @string_board[col].index(" ")
-			@string_board[col][index] = elem
-			print_board
+			index = @string_board[input].index(" ")
+			@string_board[input][index] = elem
+			clear_screen!
+			move_to_home!
+			reputs(print_board)
 		end
 	end
 
@@ -63,11 +78,11 @@ class Conect4
 		else
 			elem = "O"
 		end
-		# if horizontal(elem)
-		# 	return @flag
-		# elsif vertical(elem)
-		# 	return @flag
-		if diagonal(elem)
+		if horizontal(elem)
+			return @flag
+		elsif vertical(elem)
+			return @flag
+		elsif diagonal(elem)
 			return @flag
 		else
 			@string_board.each {  |col|
@@ -75,7 +90,6 @@ class Conect4
 					@flag = true
 				else
 					@flag = false
-					puts "Todavia se puede poner"
 					break
 				end
 			}
@@ -84,13 +98,10 @@ class Conect4
 	end
 
 	def horizontal(elem)
-		puts "HORIZONTAL"
 		word = elem * 4
 		trans = @string_board.transpose
 		trans.each{  |ren|
-			puts "elem: #{elem} ren: #{ren.join}"
 			if ren.join.include?(word)
-				puts "GANO!!!!!! #{elem}"
 				@flag = true
 				break
 			end
@@ -99,12 +110,9 @@ class Conect4
 	end
 
 	def vertical(elem)
-		puts "VERTICAL"
 		word = elem * 4
 		@string_board.each{  |col|
-			puts "elem: #{elem} col: #{col.join}"
 			if col.join.include?(word)
-				puts "GANO!!!!!! #{elem}"
 				@flag = true
 				break
 			end
@@ -119,13 +127,10 @@ class Conect4
 	end
 
   def diagonal_1(elem)
-  	puts "DIAGONAL"
   	word = elem * 4
   	espacios = mete_espacios_1
     espacios.each{  |diag|
-			puts "elem: #{elem} diag: #{diag.join}"
 	    if diag.join.include?(word)
-				puts "GANO!!!!!! #{elem}"
 				@flag = true
 				break
 			end
@@ -134,13 +139,10 @@ class Conect4
   end
 
   def diagonal_2(elem)
-  	puts "DIAGONAL"
   	word = elem * 4
   	espacios = mete_espacios_2
     espacios.each{  |diag|
-			puts "elem: #{elem} diag: #{diag.join}"
 	    if diag.join.include?(word)
-				puts "GANO!!!!!! #{elem}"
 				@flag = true
 				break
 			end
@@ -149,27 +151,35 @@ class Conect4
   end
 
 	def winner
-		if @count - 1 % 2 == 0
-			puts "\nGano X, #{@count}"
+		if (@count - 1) % 2 == 0
+			puts "\nGano #{@names[0]}, #{@count}"
 		else
-			puts "\nGano O, #{@count}"
+			puts "\nGano #{@names[1]}, #{@count}"
 		end
 	end
 
 	def print_board
+		tablero = ""
 		(@string_board.length - 1).downto(0) {  |i|
-			print "|"
+#			print "|"
+			tablero += "|"
 			for j in 0...6
 				if @string_board[j][i] == nil
-					print " |"
+#					print " |"
+					tablero += " |"
 				else
-					print @string_board[j][i] + "|"
+#					print @string_board[j][i] + "|"
+					tablero += @string_board[j][i] + "|"
 				end
 			end
-			puts
+#			puts
+			tablero += "\n"
 		}
-		print "-" * 13
-		puts
+#		print "-" * 13
+		tablero += "-" * 13
+#		puts
+		tablero += "\n"
+		tablero += "|1|2|3|4|5|6|"
 	end
 
   def mete_espacios_1
@@ -194,14 +204,30 @@ class Conect4
     aux = aux.transpose
   end
 
+	# Clear the screen
+	def clear_screen!
+	  print "\e[2J"
+	end
 
+	# Moves cursor to the top left of the terminal
+	def move_to_home!
+	  print "\e[H"
+	end
 
+	# Use "reputs" to print over a previously printed line,
+	# assuming the cursor is positioned appropriately.
+	def reputs(str = '')
+	  puts "\e[0K" + str
+	end
 end
 
 c = Conect4.new
 puts "Inicio"
 c.print_board
 c.drop_chip!
+#c.reputs(print_board)
+#c.move_to_home!
+#c.clear_screen!
 
 
 
